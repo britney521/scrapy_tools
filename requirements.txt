@@ -1,0 +1,4 @@
+# 运行时依赖（CI 打包 exe 用；PyInstaller 由工作流单独安装）
+requests>=2.31.0
+PyQt5>=5.15.10
+DrissionPage>=4.0.0
