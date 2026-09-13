@@ -9,7 +9,8 @@
 - 评论采集（`POST /rest/v/photo/comment/list`，免签名，自动翻页）
 - 开始 / **停止采集**（停止后已采到的数据照样落盘）
 - 打开浏览器 → 用户登录 → 程序自动读取 cookie 存到 `ks_config/cookies.json`，下次复用登录态
-- 输出 CSV（utf-8-sig，Excel 直接打开不乱码）
+- 输出 CSV，文件名直接用关键词：`{关键词}_视频.csv` / `{关键词}_评论.csv`
+  （utf-8-sig，Excel 直接打开不乱码；同一关键词重跑会覆盖，日志会提示）
 
 ## 本地运行
 

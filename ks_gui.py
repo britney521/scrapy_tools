@@ -18,6 +18,7 @@ from __future__ import annotations
 import csv
 import json
 import os
+import re
 import shutil
 import socket
 import subprocess
@@ -403,6 +404,12 @@ def compact_comments(data: dict[str, Any], photo_id: str) -> list[dict[str, Any]
     return rows
 
 
+def safe_filename(keyword: str) -> str:
+    """把关键词转成合法文件名: 去掉 Windows/Unix 不允许的字符。"""
+    cleaned = re.sub(r'[\\/:*?"<>|\r\n\t]', "", keyword).strip().strip(".")
+    return cleaned or "采集结果"
+
+
 def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
     if not rows:
         return
@@ -465,8 +472,10 @@ def run_collect(log: Callable[[str], None], keyword: str, max_feeds: int, max_co
     log(f"搜索采集完成, 共 {len(feeds)} 条")
 
     out_dir = Path(save_dir)
-    ts = time.strftime("%Y%m%d_%H%M%S")
-    feed_csv = out_dir / f"{keyword}_视频_{ts}.csv"
+    base = safe_filename(keyword)          # 文件名直接用关键词
+    feed_csv = out_dir / f"{base}_视频.csv"
+    if feed_csv.exists():
+        log(f"同名文件已存在, 将覆盖: {feed_csv.name}")
     write_csv(feed_csv, feeds)
     log(f"已保存: {feed_csv}")
 
@@ -505,7 +514,9 @@ def run_collect(log: Callable[[str], None], keyword: str, max_feeds: int, max_co
                 break
             nap(PAGE_INTERVAL)
 
-        comment_csv = out_dir / f"{keyword}_评论_{ts}.csv"
+        comment_csv = out_dir / f"{base}_评论.csv"
+        if comment_csv.exists():
+            log(f"同名文件已存在, 将覆盖: {comment_csv.name}")
         write_csv(comment_csv, all_comments)
         log(f"评论采集完成, 共 {len(all_comments)} 条")
         log(f"已保存: {comment_csv}")
